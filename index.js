@@ -14,7 +14,7 @@ authenticate(connection);  //efetivar a conexão
 
 
 // Definição de rotas
-app.post("/clientes", async (req, res) => {
+app.post("/clientes", async (req, res) => {  // Adicionar novo cliente
     const {nome, email, telefone, endereco} = req.body;
 
     try {
@@ -26,7 +26,40 @@ app.post("/clientes", async (req, res) => {
     }
 })
 
-app.delete("/clientes", async (req, res) => {
+app.get("/clientes", async (req, res) => {    // Lista de clientes
+    try {
+        const listaDeClientes = await Cliente.findAll();
+        res.status(200).json(listaDeClientes);
+    } catch (err) {
+        res.status(500).json({message:"Erro aconteceu"});
+    }
+});
+
+app.get("/clientes/:id", async (req, res) => {        // Buscar usuário por ID
+    try {
+        const ClientePorId = await Cliente.findOne({where: {id: req.params.id}});
+        res.json(ClientePorId)
+    }    
+        catch (err)  {
+            res.status(404).json({message: "Usuário não encontrado."})
+        }
+});
+
+app.put("/clientes/:id", async (req, res) => {
+    try {
+        Cliente.findByPk(req.params.id)
+        Cliente.update({
+            nome: req.body.nome,
+            email: req.body.email,},
+            {where: {id: req.params.id,}})
+    
+    res.status(200).send({message: "Adicionado com sucesso."})
+    } catch (err) {
+        res.status(404).json({err})
+    }
+});
+
+app.delete("/clientes", async (req, res) => {   // Deletar cliente por ID
     const {id} = req.body;
 
     try {
@@ -38,6 +71,6 @@ app.delete("/clientes", async (req, res) => {
     });
 
 app.listen(3000, () => {
-     connection.sync({force: true}) // Force apaga tudo e recria as tabelas
+      // Force apaga tudo e recria as tabelas
     console.log("Servidor rodando em http://localhost:3000")
 });
