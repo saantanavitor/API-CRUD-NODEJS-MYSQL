@@ -15,10 +15,10 @@ authenticate(connection);  //efetivar a conexão
 
 // Definição de rotas
 app.post("/clientes", async (req, res) => {
-    const {nome, email, telefone} = req.body;
-    
+    const {nome, email, telefone, endereco} = req.body;
+
     try {
-      const novo = await Cliente.create({nome, email, telefone});
+      const novo = await Cliente.create({nome, email, telefone, endereco}, {include: [Endereco]});
       res.status(201).json(novo);
     }
     catch (err) {
@@ -26,8 +26,18 @@ app.post("/clientes", async (req, res) => {
     }
 })
 
-// Escuta de eventos (listen)
+app.delete("/clientes", async (req, res) => {
+    const {id} = req.body;
+
+    try {
+        const deleteUser = await  Cliente.destroy({where: {id:id}}) && Endereco.destroy({where: {id:id}});
+        res.status(204).json(deleteUser);
+      } catch (error) {
+        res.status(500).send(error.message);
+      }
+    });
+
 app.listen(3000, () => {
-    connection.sync({force: true});  // Force apaga tudo e recria as tabelas
+     connection.sync({force: true}) // Force apaga tudo e recria as tabelas
     console.log("Servidor rodando em http://localhost:3000")
 });
