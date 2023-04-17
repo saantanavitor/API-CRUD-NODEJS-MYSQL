@@ -14,7 +14,17 @@ authenticate(connection);  //efetivar a conexão
 
 
 // Definição de rotas
-
+app.post("/clientes", async (req, res) => {
+    const {nome, email, telefone} = req.body;
+    
+    try {
+      const novo = await Cliente.create({nome, email, telefone});
+      res.status(201).json(novo);
+    }
+    catch (err) {
+        res.status(500).json({message: "Um erro aconteceu"});
+    }
+})
 
 // Escuta de eventos (listen)
 app.listen(3000, () => {
