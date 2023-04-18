@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const Cliente = require("./database/cliente");
 const Endereco = require("./database/endereco");
+const Pet = require ("./database/pet");
 
 // Configuração do App
 const app = express();
@@ -45,7 +46,7 @@ app.get("/clientes/:id", async (req, res) => {        // Buscar usuário por ID
         }
 });
 
-app.put("/clientes/:id", async (req, res) => {
+app.put("/clientes/:id", async (req, res) => {        // Fazer update nos dados do cliente
     const { id } = req.params;
     try {
         const cliente = await Cliente.findOne({where: {id: id}});
@@ -81,6 +82,43 @@ app.delete("/clientes/:id", async (req, res) => {   // Deletar cliente por ID
       }
     });
 
+app.post("/pets/", async (req, res) => {  // Adicionar novo pet
+    const {nome, tipo, dataNasc, porte, clienteId} = req.body;
+
+    try {
+        const cliente = Cliente.findByPk(clienteId);
+        if (cliente) {
+        const pet = await Pet.create({nome, tipo, dataNasc, porte, clienteId})
+        res.status(201).json(pet);
+        } else {
+            res.status(404).json({message:"Cliente não encontrado."});
+        }
+    }
+    catch (err) {
+        res.status(500).json({message: "Um erro aconteceu"});
+    }
+});
+
+app.get("/pets/", async (req, res) => {
+    const listaPets = await Pet.findAll();
+    res.json(listaPets);
+});
+
+app.get("/pets/:id", async (req, res) => {
+    const {id} = req.params;
+
+    const pet = await Pet.findByPk(id);
+
+    if (pet){
+        res.status(200).json(pet);
+    }
+    else {
+        res.status(404).json({message: "Pet não encontrados"});
+    }
+
+});
+
 app.listen(3000, () => {
+    connection.sync({force: true});
     console.log("Servidor rodando em http://localhost:3000")
 });
