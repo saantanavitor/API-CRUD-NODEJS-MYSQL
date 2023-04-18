@@ -49,7 +49,6 @@ app.put("/clientes/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const cliente = await Cliente.findOne({where: {id: id}});
-
         if ( cliente) {
             await Cliente.findByPk(req.params.id)
             Cliente.update({
@@ -66,14 +65,19 @@ app.put("/clientes/:id", async (req, res) => {
     }
 });
 
-app.delete("/clientes", async (req, res) => {   // Deletar cliente por ID
-    const {id} = req.body;
-
+app.delete("/clientes/:id", async (req, res) => {   // Deletar cliente por ID
+    const {id} = req.params;
+    const cliente = await Cliente.findOne({where: {id}});
     try {
-        const deleteUser = await Cliente.destroy({where: {id:id}}) && Endereco.destroy({where: {id:id}});
-        res.status(204).json(deleteUser);
+        if (cliente) {
+            await cliente.destroy();
+            res.status(200).send({message: "Cliente removido."});
+        }
+        else {
+            res.status(404).send({message: "Cliente não encontrado."});
+        }
       } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send({message: "Um erro aconteceu."});
       }
     });
 
