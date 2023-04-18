@@ -46,16 +46,23 @@ app.get("/clientes/:id", async (req, res) => {        // Buscar usuário por ID
 });
 
 app.put("/clientes/:id", async (req, res) => {
+    const { id } = req.params;
     try {
-        Cliente.findByPk(req.params.id)
-        Cliente.update({
+        const cliente = await Cliente.findOne({where: {id: id}});
+
+        if ( cliente) {
+            await Cliente.findByPk(req.params.id)
+            Cliente.update({
             nome: req.body.nome,
             email: req.body.email,},
             {where: {id: req.params.id,}})
-    
-    res.status(200).send({message: "Adicionado com sucesso."})
+            res.status(200).send({message: "Update feito com sucesso."})
+            }
+            else {
+                res.status(404).json({message: "Usuário não encontrado"})
+            }
     } catch (err) {
-        res.status(404).json({err})
+        res.status(500).json({message: "Algum erro aconteceu"})
     }
 });
 
@@ -63,7 +70,7 @@ app.delete("/clientes", async (req, res) => {   // Deletar cliente por ID
     const {id} = req.body;
 
     try {
-        const deleteUser = await  Cliente.destroy({where: {id:id}}) && Endereco.destroy({where: {id:id}});
+        const deleteUser = await Cliente.destroy({where: {id:id}}) && Endereco.destroy({where: {id:id}});
         res.status(204).json(deleteUser);
       } catch (error) {
         res.status(500).send(error.message);
@@ -71,6 +78,5 @@ app.delete("/clientes", async (req, res) => {   // Deletar cliente por ID
     });
 
 app.listen(3000, () => {
-      // Force apaga tudo e recria as tabelas
     console.log("Servidor rodando em http://localhost:3000")
 });
