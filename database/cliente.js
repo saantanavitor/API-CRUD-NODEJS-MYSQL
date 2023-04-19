@@ -22,7 +22,7 @@ const Cliente = connection.define("cliente", {
 // Endereço ganha uma chave estrangeira (nome do model + id)
 // Chave estrangeira = clienteId
 // Associação 1:1 (One-to-One)
-Cliente.hasOne(Endereco); // Cliente tem um endereço
+Cliente.hasOne(Endereco, {onDelete: "CASCADE"}); // Quando apagar o cliente, o endereço vai junto
 Endereco.belongsTo(Cliente); // Endereço pertence a um cliente
 
 module.exports = Cliente;
